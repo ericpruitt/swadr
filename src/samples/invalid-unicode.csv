@@ -1,0 +1,10 @@
+Name,Sequence
+Invalid 2 Octet Sequence,Ã(
+Invalid Sequence Identifier, ¡
+Invalid 3 Octet Sequence (in 2nd Octet),â(¡
+Invalid 3 Octet Sequence (in 3rd Octet),â(
+Invalid 4 Octet Sequence (in 2nd Octet),ð(¼
+Invalid 4 Octet Sequence (in 3rd Octet),ð(¼
+Invalid 4 Octet Sequence (in 4th Octet),ð((
+Valid 5 Octet Sequence (but not Unicode!),�����
+Valid 6 Octet Sequence (but not Unicode!),������

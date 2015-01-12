@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import distutils.core
 import subprocess
 

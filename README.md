@@ -60,17 +60,22 @@ table "B" then enter interactive mode:
 Installation
 ------------
 
-### Option 1: setup.py ###
+### Option 1: setup.py / pip ###
 
 A setup.py file is provided that will install the "swadr" Python module and a
 script for launching swadr's CLI. Execute `python setup.py install` using sudo
 or as privileged user to install the package globally or run `python setup.py
-install --user` to install the package as the current user. Once installed, the
-"swadr" module will be importable and, provided your `PATH` environment
-variable is configured correctly, running `swadr` at the command line will
-launch the command line interface. The default location for scripts packaged
-with Python modules is generally `~/.local/bin`, but this can be changed using
-the [--install-scripts](http://docs.python.org/2/install/#custom-installation)
+install --user` to install the package as the current user.
+
+Alternatively, swadr can be installed using pip, e.g.: `pip install swadr` or
+`pip install --user swadr`.
+
+After installation with either pip or setup.py, the "swadr" module will be
+importable and, provided your `PATH` environment variable is configured
+correctly, running `swadr` at the command line will launch the command line
+interface. The default location for scripts packaged with Python modules is
+generally `~/.local/bin`, but this can be changed using the
+[--install-scripts](http://docs.python.org/2/install/#custom-installation)
 option. The swadr CLI can also be launched by running `python -m swadr` once
 the module has been installed.
 

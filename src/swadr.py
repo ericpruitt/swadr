@@ -104,7 +104,7 @@ class SQLite3CSVImporter:
             else:
                 char = "n"
 
-            columns = (char + str(n) for n in itertools.count())
+            columns = (char + str(n) for n in itertools.count(1))
 
         else:
             # Restrict column identifiers to "word" characters.
@@ -185,7 +185,7 @@ class SQLite3CSVImporter:
 
             else:
                 first_line_number = 1
-                columns = sample_rows[0]
+                columns = None
 
             with self.dbc:
                 cursor = self.dbc.cursor()

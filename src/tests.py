@@ -174,6 +174,29 @@ class SQLite3CSVImporterTests(unittest.TestCase):
         got = list(cursor.execute("SELECT * FROM A"))
         self.assertEqual(got, expected)
 
+    def test_loadfile_header_detection(self):
+        dbc = sqlite3.connect(":memory:")
+        importer = swadr.SQLite3CSVImporter(dbc)
+        cursor = dbc.cursor()
+
+        file_without_headers = resource_path("samples", "grades-no-header.tsv")
+        importer.loadfile(file_without_headers, "A")
+        expected_column_names_without_headers = [
+            unicode("a1"), unicode("a2"), unicode("a3")]
+        results = list(cursor.execute("PRAGMA table_info(A)"))
+        names_without_headers = [r[1] for r in results]
+        self.assertEqual(names_without_headers,
+                         expected_column_names_without_headers)
+
+        file_with_headers = resource_path("samples", "grades.tsv")
+        importer.loadfile(file_with_headers, "B")
+        expected_column_names_with_headers = [
+            unicode("Assignment"), unicode("Grade"), unicode("Student")]
+        results = list(cursor.execute("PRAGMA table_info(B)"))
+        names_with_headers = [r[1] for r in results]
+        self.assertEqual(names_with_headers,
+                         expected_column_names_with_headers)
+
 
 class SWADRModuleFunctionTests(unittest.TestCase):
     def test_query_split(self):

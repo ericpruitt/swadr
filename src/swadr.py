@@ -465,7 +465,7 @@ def sqlite3_repl(connection, input_function=None, dest=None):
             print("\n", end="", file=dest)
 
 
-def cli(cliopts):
+def cli(argv):
     """
     Command line interface for __file__
 
@@ -528,13 +528,13 @@ def cli(cliopts):
 
     colopts = ":".join(letters) + ":hvqi"
     longopts = ["table=", "invalid=", "help", "pretty", "database="]
-    options, arguments = getopt.gnu_getopt(cliopts, colopts, longopts)
+    options, arguments = getopt.gnu_getopt(argv[1:], colopts, longopts)
 
-    if not sys.argv[1:] or ("--help", "") in options or ("-h", "") in options:
-        me = os.path.basename(sys.argv[0])
+    if not argv[1:] or ("--help", "") in options or ("-h", "") in options:
+        me = os.path.basename(argv[0] or __file__)
         docstring = cli.__doc__.replace("__file__", me)
         print(textwrap.dedent(docstring).strip())
-        sys.exit(0 if sys.argv[1:] else 1)
+        sys.exit(0 if argv[1:] else 1)
 
     loglevels = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
     loglevel = loglevels.index("WARNING")
@@ -625,7 +625,7 @@ def main():
     logging.basicConfig(format="%(message)s")
 
     try:
-        cli(sys.argv[1:])
+        cli(sys.argv)
     except getopt.GetoptError as exc:
         logging.fatal("Could not parse command line options: %s", exc)
         sys.exit(EXIT_GENERAL_FAILURE)
@@ -635,6 +635,7 @@ def main():
     except EnvironmentError as exc:
         logging.fatal("%s", exc)
         sys.exit(EXIT_GENERAL_FAILURE)
+
 
 if __name__ == "__main__":
     main()

@@ -401,6 +401,8 @@ def sqlite3_repl(connection, input_function=None, dest=None):
         input_function = input if PYTHON_3 else raw_input
 
     linebuffer = ""
+    original_connection_isolation_level = connection.isolation_level
+    connection.isolation_level = None
     cursor = connection.cursor()
     while True:
         prompt = "sqlite> "
@@ -458,6 +460,7 @@ def sqlite3_repl(connection, input_function=None, dest=None):
         except EOFError:
             # ^D to exit
             print("\n", end="", file=dest)
+            connection.isolation_level = original_connection_isolation_level
             return
         except KeyboardInterrupt:
             # ^C to reset the line buffer

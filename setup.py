@@ -13,7 +13,7 @@ except OSError:
 
 distutils.core.setup(
     name="swadr",
-    version="1.0.1",
+    version="1.1.0",
     description="Import data from CSV, TSV, etc. files into SQLite3 database.",
     author="Eric Pruitt",
     author_email="eric.pruitt@gmail.com",

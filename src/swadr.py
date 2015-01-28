@@ -81,8 +81,8 @@ class SQLite3CSVImporter:
 
         return typedefs
 
-    @classmethod
-    def quote_identifier(cls, identifier):
+    @staticmethod
+    def quote_identifier(identifier):
         """
         Return ANSI-quoted SQL identifier.
         """

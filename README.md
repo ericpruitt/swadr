@@ -60,6 +60,25 @@ table "B" then enter interactive mode:
 Installation
 ------------
 
+There are no non-standard modules required to install S.W.A.D.R., but if the
+[wcwidth](https://pypi.python.org/pypi/wcwidth/0.1.4) module is available, it
+will be used to correctly pad tables containing east Asian characters:
+
+    sqlite> SELECT "最初の例: wcwidth missing" AS "Example 1";
+    +-----------------------+
+    | Example 1             |
+    +-----------------------+
+    | 最初の例: wcwidth missing |
+    +-----------------------+
+
+    sqlite> SELECT "第二の例: wcwidth installed" AS "Example 2";
+    +-----------------------------+
+    | Example 2                   |
+    +-----------------------------+
+    | 第二の例: wcwidth installed |
+    +-----------------------------+
+    1 row in set (0.00 sec)
+
 ### Option 1: setup.py / pip ###
 
 A setup.py file is provided that will install the "swadr" Python module and a

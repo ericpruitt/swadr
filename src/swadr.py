@@ -20,6 +20,12 @@ try:
 except ImportError:
     pass
 
+try:
+    import wcwidth
+    WCWIDTH_SUPPORT = True
+except ImportError:
+    WCWIDTH_SUPPORT = False
+
 
 PYTHON_3 = sys.version_info >= (3, )
 EXIT_GENERAL_FAILURE = 1
@@ -27,7 +33,7 @@ EXIT_DATABASE_ERROR = 2
 
 __all__ = ["PYTHON_3", "EXIT_GENERAL_FAILURE", "EXIT_DATABASE_ERROR",
     "SQLite3CSVImporter", "pretty_print_table", "query_split",
-    "metaquery_conversion", "sqlite3_repl"]
+    "metaquery_conversion", "sqlite3_repl", "WCWIDTH_SUPPORT"]
 __license__ = "BSD 2-Clause"
 
 
@@ -257,7 +263,27 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
 
     The `tabsize` parameter controls how many spaces tabs are expanded to.
     """
-    # TODO: Implement optional support for the wcwidth module.
+    # The textwidth function returns the number of printed columns the given
+    # text will span in a monospaced terminal. When the wcwidth module is not
+    # available, this falls back to the len builtin which will be inaccurate
+    # for many non-Latin characters.
+    if not WCWIDTH_SUPPORT:
+        textwidth = len
+
+    elif PYTHON_3:
+        def textwidth(text):
+            length = wcwidth.wcswidth(text)
+            return len(text) if length == -1 else length
+
+    else:
+        def textwidth(text):
+            if isinstance(text, unicode):
+                return wcwidth.wcswidth(text)
+            else:
+                text = text.decode("utf-8", "replace")
+                length = wcwidth.wcswidth(text)
+                return len(text) if length == -1 else length
+
     table = list(table)
     last = len(table) - 1
     colwidths = list()
@@ -288,7 +314,7 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
         # widest, previously encountered cell in each column.
         initialize = not table_lines
         for index, contents in enumerate(cells):
-            width = max(map(len, contents))
+            width = max(map(textwidth, contents))
             if initialize:
                 colwidths.append(width)
             else:
@@ -320,7 +346,9 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
             for index, column in enumerate(row):
                 if not PYTHON_3 and isinstance(column, unicode):
                     column = column.encode("utf-8", "replace")
-                printcols.append(("%%-%ds" % colwidths[index]) % column)
+
+                padded = column + " " * (colwidths[index] - textwidth(column))
+                printcols.append(padded)
 
             print(*printcols, sep=" | ", end=" |\n", file=dest)
 

@@ -371,6 +371,33 @@ class SWADRModuleFunctionTests(unittest.TestCase):
         txtio.seek(0)
         self.assertEqual(txtio.read(), expected)
 
+    if swadr.WCWIDTH_SUPPORT:
+        def test_pretty_printing_tables_with_wide_asian_characters(self):
+            table = [
+                ["Artist", "Song"],
+                ["分島花音", "砂のお城"],
+            ]
+
+            if swadr.PYTHON_3:
+                txtio = io.StringIO()
+            else:
+                txtio = io.BytesIO()
+                for j, row in enumerate(table):
+                    for k, column in enumerate(row):
+                        table[j][k] = unicode(column, encoding="utf-8")
+
+            expected = "\n".join((
+                "+----------+----------+",
+                "| Artist   | Song     |",
+                "+----------+----------+",
+                "| 分島花音 | 砂のお城 |",
+                "+----------+----------+\n",
+            ))
+
+            swadr.pretty_print_table(table, breakafter=[0], dest=txtio)
+            txtio.seek(0)
+            self.assertEqual(txtio.read(), expected)
+
 
 def resource_path(*args):
     return os.path.join(SCRIPT_DIRECTORY, *args)

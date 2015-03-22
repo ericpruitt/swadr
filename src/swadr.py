@@ -227,7 +227,7 @@ class SQLite3CSVImporter:
                     self.dbc.text_factory = original_text_factory
 
 
-def pretty_print_table(table, breakafter=False, dest=None, tabsize=8):
+def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
     """
     Pretty-print data from a table in a style similar to MySQL CLI. The
     `breakafter` option is used to determine where row-breaks should be
@@ -243,7 +243,7 @@ def pretty_print_table(table, breakafter=False, dest=None, tabsize=8):
     ... ["Bob", 10, "Blue"],
     ... ["Rob", 25, "Red"],
     ... ["Penny", 70, "Purple"]]
-    >>> pretty_print_table(table, breakafter=[0])
+    >>> pretty_print_table(table)
     +-------+-----+----------------+
     | Name  | Age | Favorite Color |
     +-------+-----+----------------+
@@ -430,7 +430,7 @@ def sqlite3_repl(connection, input_function=None, dest=None):
 
                             headers = [d[0] for d in cursor.description]
                             tbl = [headers] + results
-                            pretty_print_table(tbl, breakafter=[0], dest=dest)
+                            pretty_print_table(tbl, dest=dest)
 
                         else:
                             prefix = "Query OK, but no data returned"
@@ -615,7 +615,7 @@ def cli(argv):
             results = list(results)
             if results:
                 headers = [d[0] for d in cursor.description]
-                pretty_print_table([headers] + results, breakafter=[0])
+                pretty_print_table([headers] + results)
         else:
             for row in results:
                 print("\t".join((("" if c is None else str(c) for c in row))))

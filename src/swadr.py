@@ -269,7 +269,11 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
             if column is None:
                 column = "NULL"
             else:
-                column = str(column).expandtabs(tabsize)
+                if not PYTHON_3 and not isinstance(column, unicode):
+                    column = str(column)
+
+                column = column.expandtabs(tabsize)
+
             cells.append(column.split("\n"))
 
         # Check if row-break should be inserted after row
@@ -308,12 +312,17 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
             print("+-", end="", file=dest)
             for index, column in enumerate(row):
                 printcols.append("-" * colwidths[index])
-            print("-+-".join(printcols), end="-+\n", file=dest)
+
+            print(*printcols, sep="-+-", end="-+\n", file=dest)
+
         else:
             print("| ", end="", file=dest)
             for index, column in enumerate(row):
+                if not PYTHON_3 and isinstance(column, unicode):
+                    column = column.encode("utf-8", "replace")
                 printcols.append(("%%-%ds" % colwidths[index]) % column)
-            print(" | ".join(printcols), end=" |\n", file=dest)
+
+            print(*printcols, sep=" | ", end=" |\n", file=dest)
 
 
 def query_split(text):
@@ -468,7 +477,7 @@ def sqlite3_repl(connection, input_function=None, dest=None):
             print("\n", end="", file=dest)
 
 
-def cli(argv):
+def cli(argv, dest=None):
     """
     Command line interface for __file__
 
@@ -615,13 +624,23 @@ def cli(argv):
             results = list(results)
             if results:
                 headers = [d[0] for d in cursor.description]
-                pretty_print_table([headers] + results)
+                pretty_print_table([headers] + results, dest=dest)
         else:
-            for row in results:
-                print("\t".join((("" if c is None else str(c) for c in row))))
+            def printable(var):
+                """
+                Return print function-friendly variable.
+                """
+                if not PYTHON_3 and isinstance(var, unicode):
+                    return var.encode("utf-8", "replace")
+                else:
+                    return var
+
+            for r in results:
+                columns = ("" if c is None else printable(c) for c in r)
+                print(*columns, sep="\t", file=dest)
 
     if interact:
-        sqlite3_repl(connection)
+        sqlite3_repl(connection, dest=dest)
 
 
 def main():

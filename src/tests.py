@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import io
 import os
 import sqlite3
@@ -336,6 +337,37 @@ class SWADRModuleFunctionTests(unittest.TestCase):
             txtio = io.BytesIO()
 
         swadr.pretty_print_table(table, breakafter=True, tabsize=8, dest=txtio)
+        txtio.seek(0)
+        self.assertEqual(txtio.read(), expected)
+
+    def test_pretty_print_table_with_unicode(self):
+        if swadr.PYTHON_3:
+            txtio = io.StringIO()
+            table = ["☺"]
+        else:
+            txtio = io.BytesIO()
+            table = [unicode("☺", encoding="utf-8")]
+
+        expected = "\n".join((
+            "+---+",
+            "| ☺ |",
+            "+---+\n",
+        ))
+
+        swadr.pretty_print_table(table, dest=txtio)
+        txtio.seek(0)
+        self.assertEqual(txtio.read(), expected)
+
+    def test_batch_output_handles_unicode(self):
+        argv = ["_", "--database=:memory:", 'SELECT "☺"']
+
+        if swadr.PYTHON_3:
+            txtio = io.StringIO()
+        else:
+            txtio = io.BytesIO()
+
+        expected = "☺\n"
+        swadr.cli(argv, dest=txtio)
         txtio.seek(0)
         self.assertEqual(txtio.read(), expected)
 

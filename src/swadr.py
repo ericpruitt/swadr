@@ -102,6 +102,9 @@ class SQLite3CSVImporter:
         automatically. When `if_not_exists` is set, the "IF NOT EXISTS" infix
         will be added to the "CREATE TABLE" query.
         """
+        if not types:
+            raise ValueError("Must specify types.")
+
         if not columns:
             for char in tablename:
                 if char.isalpha():
@@ -125,9 +128,6 @@ class SQLite3CSVImporter:
                 _columns.append(column)
 
             columns = _columns
-
-        if not types:
-            raise ValueError("Must specify types.")
 
         columns = (self.quote_identifier(column) for column in columns)
         table = self.quote_identifier(tablename)
@@ -278,7 +278,8 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
     else:
         def textwidth(text):
             if isinstance(text, unicode):
-                return wcwidth.wcswidth(text)
+                length = wcwidth.wcswidth(text)
+                return len(text) if length == -1 else length
             else:
                 text = text.decode("utf-8", "replace")
                 length = wcwidth.wcswidth(text)
@@ -472,7 +473,10 @@ def sqlite3_repl(connection, input_function=None, dest=None):
                         else:
                             prefix = "Query OK, but no data returned"
 
-                        text = "%s (%0.2f sec)" % (prefix, duration)
+                        if duration >= 0:
+                            text = "%s (%0.2f sec)" % (prefix, duration)
+                        else:
+                            text = "%s (execution time unknown)" % (prefix,)
 
                     except sqlite3.Error as exc:
                         text = "%s" % exc
@@ -573,7 +577,7 @@ def cli(argv, dest=None):
     if not argv[1:] or ("--help", "") in options or ("-h", "") in options:
         me = os.path.basename(argv[0] or __file__)
         docstring = cli.__doc__.replace("__file__", me)
-        print(textwrap.dedent(docstring).strip())
+        print(textwrap.dedent(docstring).strip(), file=dest)
         sys.exit(0 if argv[1:] else 1)
 
     loglevels = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")

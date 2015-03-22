@@ -70,6 +70,7 @@ will be used to correctly pad tables containing east Asian characters:
     +-----------------------+
     | 最初の例: wcwidth missing |
     +-----------------------+
+    1 row in set (0.00 sec)
 
     sqlite> SELECT "第二の例: wcwidth installed" AS "Example 2";
     +-----------------------------+

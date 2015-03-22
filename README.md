@@ -79,6 +79,10 @@ will be used to correctly pad tables containing east Asian characters:
     +-----------------------------+
     1 row in set (0.00 sec)
 
+**NOTE:** The examples above may not render correctly in a web browser. If both
+tables appear to be mis-sized / misaligned, try viewing this file in a terminal
+or text editor configured to use monospaced fonts.
+
 ### Option 1: setup.py / pip ###
 
 A setup.py file is provided that will install the "swadr" Python module and a

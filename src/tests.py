@@ -398,6 +398,46 @@ class SWADRModuleFunctionTests(unittest.TestCase):
             txtio.seek(0)
             self.assertEqual(txtio.read(), expected)
 
+    def test_pretty_print_table_type_acceptance(self):
+        table = [
+            ["A", "B", "C"],
+            [1.23, 2, b"XYZ"],
+        ]
+
+        if swadr.PYTHON_3:
+            txtio = io.StringIO()
+        else:
+            txtio = io.BytesIO()
+
+        # This simply needs to not fail, so the contents of txtio is not
+        # checked.
+        swadr.pretty_print_table(table, dest=txtio)
+
+    def test_numbers_cause_right_alignment(self):
+        table = [
+            ["One", "Two", "Three"],
+            ["Uno", 2, "Tres"],
+            ["Uma", 9999, "Troi"],
+        ]
+
+        if swadr.PYTHON_3:
+            txtio = io.StringIO()
+        else:
+            txtio = io.BytesIO()
+
+        expected = "\n".join((
+            "+-----+------+-------+",
+            "| One |  Two | Three |",
+            "+-----+------+-------+",
+            "| Uno |    2 | Tres  |",
+            "| Uma | 9999 | Troi  |",
+            "+-----+------+-------+\n",
+        ))
+
+        swadr.pretty_print_table(table, breakafter=[0], dest=txtio)
+        txtio.seek(0)
+        self.assertEqual(txtio.read(), expected)
+
 
 def resource_path(*args):
     return os.path.join(SCRIPT_DIRECTORY, *args)

@@ -7,6 +7,7 @@ import getopt
 import io
 import itertools
 import logging
+import numbers
 import os
 import re
 import sqlite3
@@ -253,9 +254,9 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
     +-------+-----+----------------+
     | Name  | Age | Favorite Color |
     +-------+-----+----------------+
-    | Bob   | 10  | Blue           |
-    | Rob   | 25  | Red            |
-    | Penny | 70  | Purple         |
+    | Bob   |  10 | Blue           |
+    | Rob   |  25 | Red            |
+    | Penny |  70 | Purple         |
     +-------+-----+----------------+
 
     By default, the table is printed to stdout, but this can be changed by
@@ -289,14 +290,18 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
     last = len(table) - 1
     colwidths = list()
     table_lines = list()
+    left_aligned = [True] * len(table[0]) if table else []
     for rowindex, row in enumerate(table):
         # Split each cell into lines
         cells = list()
-        for column in row:
+        for colindex, column in enumerate(row):
             if column is None:
                 column = "NULL"
             else:
-                if not PYTHON_3 and not isinstance(column, unicode):
+                if isinstance(column, numbers.Number):
+                    left_aligned[colindex] = False
+
+                if PYTHON_3 or not isinstance(column, unicode):
                     column = str(column)
 
                 column = column.expandtabs(tabsize)
@@ -348,8 +353,11 @@ def pretty_print_table(table, breakafter=[0], dest=None, tabsize=8):
                 if not PYTHON_3 and isinstance(column, unicode):
                     column = column.encode("utf-8", "replace")
 
-                padded = column + " " * (colwidths[index] - textwidth(column))
-                printcols.append(padded)
+                padding = " " * (colwidths[index] - textwidth(column))
+                if left_aligned[index]:
+                    printcols.append(column + padding)
+                else:
+                    printcols.append(padding + column)
 
             print(*printcols, sep=" | ", end=" |\n", file=dest)
 
